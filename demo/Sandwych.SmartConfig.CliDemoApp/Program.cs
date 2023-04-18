@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -172,6 +172,12 @@ namespace Sandwych.SmartConfig.CliDemoApp
             }
             Console.WriteLine("Local address: {0}", localAddress);
 
+            // While in Windows it is mandatory to configure the local IP of the computer, in Linux it is not necessary.
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                argumentsInfo.SCArguments.LocalAddress = localAddress;
+            }
+
             var provider = (ISmartConfigProvider?)Activator.CreateInstance(argumentsInfo.ProtocolProvider);
             if (provider is null)
             {
@@ -208,7 +214,7 @@ namespace Sandwych.SmartConfig.CliDemoApp
             Console.WriteLine("  -p AP_PASSWORD\tWiFi access point password if required.");
             Console.WriteLine("  -d DATA\t\tReserved data to be sent to the device. Only available when EspTouchV2 is used.");
             Console.WriteLine("  -k KEY\t\tData encryption key. Must be 16 characters and only available when EspTouchV2 is used.");
-            Console.WriteLine("  -t TIMEOUT\tTimeout, default 30 secs.");
+            Console.WriteLine("  -t TIMEOUT\t\tTimeout, default 30 secs.");
             Console.WriteLine("\nTips:");
             Console.WriteLine("  On Windows you can get BSSID by using command 'netsh wlan show interfaces'");
         }
@@ -218,7 +224,7 @@ namespace Sandwych.SmartConfig.CliDemoApp
             var description = RuntimeInformation.OSDescription;
             var arch = RuntimeInformation.OSArchitecture;
 
-            Console.WriteLine($"Running in {description}, arch: {arch}");
+            Console.WriteLine($"Running on {description}, arch: {arch}");
         }
 
         private static void Job_Elapsed(object sender, SmartConfigTimerEventArgs e)
