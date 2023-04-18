@@ -1,9 +1,9 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/y4vy6qr9k0xj8e7y/branch/master?svg=true)](https://ci.appveyor.com/project/oldrev/sandwych-smartconfig/branch/master)
 [![NuGet](https://img.shields.io/nuget/v/Sandwych.SmartConfig.svg)](https://www.nuget.org/packages/Sandwych.SmartConfig)
 
-# Sandwych.SmartConfig
+# CSharp.SmartConfig
 
-Sandwych.SmartConfig is a pure C# implementation of various WiFi SmartConfig protocols that build from scratch.
+Csharp.SmartConfig is fork of Sandwych.SmartConfig, a pure C# implementation of various WiFi SmartConfig protocols that build from scratch.
 
 TD;LR: If you working on a Xamarin mobile app to deal with WiFi-capability IoT devices, you may need this library.
 
@@ -15,7 +15,7 @@ English | [简体中文](README.zh_cn.md)
 
 * A .NET Standard class library, works on both Xamarin and desktop.
 * No third-party library referenced.
-* Supported protocols: WeChat's AirKiss and Espressif's ESPTouch.
+* Supported protocols: WeChat's AirKiss, Espressif's ESPTouch and ESPTouchV2.
 * Clean architecture, easy to learn and add your own protocol.
 * IoC container friendly.
 
@@ -28,7 +28,7 @@ English | [简体中文](README.zh_cn.md)
 
 ### Supported Platforms
 
-* .NET Standard 2.0+
+* .NET Standard 2.1+
 
 ### Installation
 
