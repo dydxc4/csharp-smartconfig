@@ -14,7 +14,7 @@ namespace Sandwych.SmartConfig.Airkiss
         public override IEnumerable<(string key, object value)> GetDefaultOptions()
         {
             yield return (StandardOptionNames.BroadcastingTargetPort, 10001); // The port to broadcast doesn't matter
-            yield return (StandardOptionNames.ListeningPort, 10000);
+            yield return (StandardOptionNames.ListeningPorts, new int[] { 10000 });
             yield return (StandardOptionNames.FrameInterval, TimeSpan.Zero);
             yield return (StandardOptionNames.SegmentInterval, TimeSpan.FromMilliseconds(5));
             yield return (StandardOptionNames.GuideCodeTimeout, TimeSpan.FromSeconds(2));

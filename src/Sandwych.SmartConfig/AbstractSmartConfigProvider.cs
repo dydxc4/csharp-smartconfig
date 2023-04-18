@@ -12,7 +12,7 @@ namespace Sandwych.SmartConfig
         public SmartConfigContext CreateContext()
         {
             var ctx = new SmartConfigContext(this);
-            foreach(var e in this.GetDefaultOptions())
+            foreach(var e in GetDefaultOptions())
             {
                 ctx.Options[e.key] = e.value;
             }

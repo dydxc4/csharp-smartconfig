@@ -9,7 +9,8 @@ namespace Sandwych.SmartConfig.Networking
     public interface IDatagramClient : IDisposable
     {
         void Bind(IPEndPoint localEndPoint);
-        Task SendAsync(byte[] datagram, int bytes, IPEndPoint target);
+        void SetDefaultTarget(IPEndPoint targetEndPoint);
+        Task SendAsync(byte[] datagram, int bytes, IPEndPoint? target = null);
 
         Task<DatagramReceiveResult> ReceiveAsync();
     }

@@ -34,12 +34,11 @@ namespace Sandwych.SmartConfig.Networking
                 throw new InvalidOperationException("Already started.");
             }
 
-            _isStarted = true;
             try
             {
-                this.SetupSocket(context, localAddress);
+                _isStarted = true;
                 _reportedDeviceIPAddresses.Clear();
-                await this.ListenUntilCancelledAsync(context).WithCancellation(cancelToken);
+                await ListenUntilCancelledAsync(context).WithCancellation(cancelToken);
             }
             finally
             {
@@ -47,9 +46,8 @@ namespace Sandwych.SmartConfig.Networking
             }
         }
 
-        private void SetupSocket(SmartConfigContext context, IPAddress localAddress)
+        public void SetupSocket(IPAddress localAddress, int listeningPort)
         {
-            var listeningPort = context.GetOption<int>(StandardOptionNames.ListeningPort);
             _listeningSocket.Bind(new IPEndPoint(localAddress, listeningPort));
         }
 
@@ -73,7 +71,7 @@ namespace Sandwych.SmartConfig.Networking
 
         public void Close()
         {
-            this.Dispose();
+            Dispose();
         }
 
         #region IDisposable Support
@@ -104,7 +102,7 @@ namespace Sandwych.SmartConfig.Networking
             {
                 throw new InvalidOperationException("Already started.");
             }
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

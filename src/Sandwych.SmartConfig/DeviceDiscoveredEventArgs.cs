@@ -6,7 +6,7 @@ namespace Sandwych.SmartConfig
     {
         public DeviceDiscoveredEventArgs(ISmartConfigDevice device)
         {
-            this.Device = device;
+            Device = device;
         }
 
         public ISmartConfigDevice Device { get; }

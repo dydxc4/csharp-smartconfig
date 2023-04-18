@@ -12,8 +12,8 @@ namespace Sandwych.SmartConfig.Networking
 
         public DatagramReceiveResult(byte[] buffer, IPEndPoint remote)
         {
-            this.Buffer = buffer;
-            this.RemoteEndPoint = remote;
+            Buffer = buffer;
+            RemoteEndPoint = remote;
         }
     }
 }

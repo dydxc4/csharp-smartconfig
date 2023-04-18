@@ -50,7 +50,7 @@ namespace Sandwych.SmartConfig.Util
         {
             for (int i = 0; i < len; i++)
             {
-                _value = this.Update(buffer[offset + i]);
+                _value = Update(buffer[offset + i]);
             }
             return _value;
         }
@@ -59,7 +59,7 @@ namespace Sandwych.SmartConfig.Util
         {
             foreach (var b in bytes)
             {
-                _value = this.Update(b);
+                _value = Update(b);
             }
             return _value;
         }
@@ -72,7 +72,7 @@ namespace Sandwych.SmartConfig.Util
          */
         public byte Update(byte[] buffer)
         {
-            return this.Update(buffer, 0, buffer.Length);
+            return Update(buffer, 0, buffer.Length);
         }
 
         public byte Update(byte b)

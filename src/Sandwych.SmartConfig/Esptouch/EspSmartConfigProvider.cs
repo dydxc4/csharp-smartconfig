@@ -15,10 +15,11 @@ namespace Sandwych.SmartConfig.Esptouch
         public override IEnumerable<(string key, object value)> GetDefaultOptions()
         {
             yield return (StandardOptionNames.BroadcastingTargetPort, 7001);
-            yield return (StandardOptionNames.ListeningPort, 18266);
+            yield return (StandardOptionNames.ListeningPorts, new int[] { 18266 });
             yield return (StandardOptionNames.FrameInterval, TimeSpan.Zero);
             yield return (StandardOptionNames.SegmentInterval, TimeSpan.FromMilliseconds(8));
             yield return (StandardOptionNames.GuideCodeTimeout, TimeSpan.FromSeconds(2));
+            yield return (StandardOptionNames.SelectedListeningPortIndex, 0);
             yield return (EspOptionNames.DatumPeriodTimeout, TimeSpan.FromSeconds(4));
         }
 

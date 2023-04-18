@@ -1,11 +1,12 @@
-using Sandwych.SmartConfig.Networking;
 using System;
-using System.Net;
+using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Sandwych.SmartConfig.Util;
 using System.Timers;
 using System.ComponentModel;
+using Sandwych.SmartConfig.Networking;
+using Sandwych.SmartConfig.Util;
 
 #if DEBUG
 using System.Diagnostics;
@@ -15,21 +16,21 @@ namespace Sandwych.SmartConfig
 {
     public class SmartConfigJob : ISmartConfigJob
     {
+        public static TimeSpan TimeInterval { get; } = TimeSpan.FromSeconds(1);
+
         private bool _isStarted = false;
         private readonly IDatagramBroadcaster _broadcaster = new DatagramBroadcaster();
         private readonly IDatagramReceiver _receiver = new DatagramReceiver();
 
-        public static TimeSpan TimeInterval { get; } = TimeSpan.FromSeconds(1);
+        private readonly System.Timers.Timer _timer = new System.Timers.Timer(TimeInterval.TotalMilliseconds);
 
-        private System.Timers.Timer _timer = new System.Timers.Timer(TimeInterval.TotalMilliseconds);
+        private CancellationTokenSource? _timerCts;
 
-        private CancellationTokenSource _timerCts = null;
-
-        public event SmartConfigTimerEventHandler Elapsed;
+        public event SmartConfigTimerEventHandler? Elapsed;
 
         public TimeSpan Timeout { get; }
         public TimeSpan ExecutedTime { get; private set; } = TimeSpan.Zero;
-        public TimeSpan LeftTime => this.Timeout - this.ExecutedTime;
+        public TimeSpan LeftTime => Timeout - ExecutedTime;
 
         public SmartConfigJob() : this(TimeSpan.FromSeconds(60))
         {
@@ -37,16 +38,16 @@ namespace Sandwych.SmartConfig
 
         public SmartConfigJob(TimeSpan timeout)
         {
-            this.Timeout = timeout;
+            Timeout = timeout;
 
-            this._timer.Elapsed += Timer_Elapsed;
+            _timer.Elapsed += Timer_Elapsed;
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            this.ExecutedTime = ExecutedTime.Add(TimeSpan.FromMilliseconds(_timer.Interval));
-            this.Elapsed?.Invoke(this, new SmartConfigTimerEventArgs(this.Timeout, this.ExecutedTime));
-            if (this.LeftTime <= TimeSpan.Zero)
+            ExecutedTime = ExecutedTime.Add(TimeSpan.FromMilliseconds(_timer.Interval));
+            Elapsed?.Invoke(this, new SmartConfigTimerEventArgs(Timeout, ExecutedTime));
+            if (LeftTime <= TimeSpan.Zero)
             {
                 if (_timer.Enabled)
                 {
@@ -57,6 +58,33 @@ namespace Sandwych.SmartConfig
             }
         }
 
+        private void SetupReceiver(SmartConfigContext context, SmartConfigArguments args)
+        {
+            var listeningPorts = context.GetOption<IReadOnlyList<int>>(StandardOptionNames.ListeningPorts);
+            SocketException? exception = null;
+            bool success = false;
+            
+            for (int i = 0; i < listeningPorts.Count; i++)
+            {
+                try
+                {
+                    _receiver.SetupSocket(args.LocalAddress, listeningPorts[i]);
+                    context.SetOption(StandardOptionNames.SelectedListeningPortIndex, i);
+                    success = true;
+                    break;
+                }
+                catch (SocketException ex)
+                {
+                    exception = ex;
+                }
+            }
+            
+            if (!success && exception != null)
+            {
+                throw exception;
+            }
+        }
+
         public async Task ExecuteAsync(SmartConfigContext context, SmartConfigArguments args, CancellationToken externalCancelToken)
         {
             if (_isStarted)
@@ -64,14 +92,17 @@ namespace Sandwych.SmartConfig
                 throw new InvalidOperationException("Already started");
             }
 
-            this.ExecutedTime = TimeSpan.Zero;
+            ExecutedTime = TimeSpan.Zero;
             _isStarted = true;
             _timerCts = new CancellationTokenSource();
             var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(externalCancelToken, _timerCts.Token);
+            
             try
             {
+                SetupReceiver(context, args);
+
                 _timer.Start();
-                this.Elapsed?.Invoke(this, new SmartConfigTimerEventArgs(this.Timeout, this.ExecutedTime));
+                Elapsed?.Invoke(this, new SmartConfigTimerEventArgs(Timeout, ExecutedTime));
 
                 var broadcastingTask = _broadcaster.BroadcastAsync(context, args, linkedCts.Token).CancelOnFaulted(linkedCts);
                 var receivingTask = _receiver.ListenAsync(context, args.LocalAddress, linkedCts.Token).CancelOnFaulted(linkedCts);
@@ -112,7 +143,7 @@ namespace Sandwych.SmartConfig
 
         public void Close()
         {
-            this.Dispose();
+            Dispose();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -131,7 +162,7 @@ namespace Sandwych.SmartConfig
 
         ~SmartConfigJob()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
         public void Dispose()
@@ -140,7 +171,7 @@ namespace Sandwych.SmartConfig
             {
                 throw new InvalidOperationException("Already started");
             }
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
         #endregion

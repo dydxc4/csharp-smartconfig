@@ -39,7 +39,7 @@ namespace Sandwych.SmartConfig.Esptouch.Protocol
 
             _framesBuilder.Clear();
 
-            this.DoEncode(totalLength, (byte)passwordBytes.Length,
+            DoEncode(totalLength, (byte)passwordBytes.Length,
                  ssidCrc8, bssidCrc8, totalXor, senderIPAddress, passwordBytes, ssid, bssid);
             return _framesBuilder;
         }
@@ -89,7 +89,7 @@ namespace Sandwych.SmartConfig.Esptouch.Protocol
 
         private void AppendByte(byte b)
         {
-            this.AppendByte(this.DataCodeCount, b);
+            AppendByte(DataCodeCount, b);
         }
 
         private void AppendByte(int frameIndex, byte b)
@@ -117,14 +117,14 @@ namespace Sandwych.SmartConfig.Esptouch.Protocol
             byte[] ssid,
             byte[] bssid)
         {
-            this.AppendByte(totalLength);
-            this.AppendByte(passwordLength);
-            this.AppendByte(ssidCrc8);
-            this.AppendByte(bssidCrc8);
-            this.AppendByte(totalXor);
-            this.AppendBytes(senderIpAddress);
-            this.AppendBytes(stationPassword);
-            this.AppendBytes(ssid);
+            AppendByte(totalLength);
+            AppendByte(passwordLength);
+            AppendByte(ssidCrc8);
+            AppendByte(bssidCrc8);
+            AppendByte(totalXor);
+            AppendBytes(senderIpAddress);
+            AppendBytes(stationPassword);
+            AppendBytes(ssid);
 
             var bssidInsertIndex = ExtraHeaderLength;
             for (var i = 0; i < bssid.Length; i++)
@@ -132,7 +132,7 @@ namespace Sandwych.SmartConfig.Esptouch.Protocol
                 var frameIndex = totalLength + i;
                 var byteValue = bssid[i];
                 var fs = ByteToFrames(frameIndex, byteValue);
-                if (bssidInsertIndex >= this.DataCodeCount)
+                if (bssidInsertIndex >= DataCodeCount)
                 {
                     _framesBuilder.AddRange(fs);
                 }

@@ -13,8 +13,8 @@ namespace Sandwych.SmartConfig
 
         public SmartConfigDevice(PhysicalAddress mac, IPAddress ip)
         {
-            this.MacAddress = mac;
-            this.IPAddress = ip;
+            MacAddress = mac;
+            IPAddress = ip;
         }
     }
 }

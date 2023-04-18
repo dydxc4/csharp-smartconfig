@@ -7,6 +7,8 @@ namespace Sandwych.SmartConfig.Networking
 {
     public interface IDatagramReceiver : IDisposable
     {
+        void SetupSocket(IPAddress localAddress, int port);
+
         Task ListenAsync(
             SmartConfigContext context, IPAddress localAddress, CancellationToken cancelToken);
     }

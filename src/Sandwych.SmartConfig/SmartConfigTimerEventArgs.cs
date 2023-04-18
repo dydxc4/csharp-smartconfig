@@ -12,8 +12,8 @@ namespace Sandwych.SmartConfig
 
         public SmartConfigTimerEventArgs (TimeSpan timeout, TimeSpan elapsed)
         {
-            this.Timeout = timeout;
-            this.ExecutedTime = elapsed;
+            Timeout = timeout;
+            ExecutedTime = elapsed;
         }
     }
 }

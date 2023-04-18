@@ -13,11 +13,9 @@ namespace Sandwych.SmartConfig.Networking
     {
         private IDatagramClient _broadcastingSocket;
         private bool _isStarted = false;
-        private IPEndPoint _broadcastTarget;
 
-        public DatagramBroadcaster()
+        public DatagramBroadcaster() : this(new DefaultDatagramClient())
         {
-            _broadcastingSocket = new DefaultDatagramClient();
         }
 
         public DatagramBroadcaster(IDatagramClient client)
@@ -34,15 +32,17 @@ namespace Sandwych.SmartConfig.Networking
 
             try
             {
-                this._isStarted = true;
+                _isStarted = true;
 
+                var targetPort = context.GetOption<int>(StandardOptionNames.BroadcastingTargetPort);
+                _broadcastingSocket.SetDefaultTarget(new IPEndPoint(IPAddress.Broadcast, targetPort));                
                 _broadcastingSocket.Bind(new IPEndPoint(args.LocalAddress, 0));
-                _broadcastTarget = new IPEndPoint(IPAddress.Broadcast, context.GetOption<int>(StandardOptionNames.BroadcastingTargetPort));
+                
                 var encoder = context.Provider.CreateProcedureEncoder();
                 var segments = encoder.Encode(context, args);
-                var broadcastBuffer = this.CreateBroadcastBuffer(segments.SelectMany(x => x.Frames));
+                var broadcastBuffer = CreateBroadcastBuffer(segments.SelectMany(x => x.Frames));
 
-                await this.BroadcastProcedureAsync(context, segments, broadcastBuffer, cancelToken);
+                await BroadcastProcedureAsync(context, segments, broadcastBuffer, cancelToken);
             }
             finally
             {
@@ -67,11 +67,11 @@ namespace Sandwych.SmartConfig.Networking
 
                     if (segment.BroadcastingMaxTimes > 0)
                     {
-                        await this.BroadcastSegmentByTimesAsync(context, segment, broadcastBuffer, userCancelToken);
+                        await BroadcastSegmentByTimesAsync(context, segment, broadcastBuffer, userCancelToken);
                     }
                     else
                     {
-                        await this.BroadcastSegmentUntilAsync(
+                        await BroadcastSegmentUntilAsync(
                             context, segment, broadcastBuffer, userCancelToken);
                     }
                     if (segmentInterval > TimeSpan.Zero)
@@ -91,10 +91,14 @@ namespace Sandwych.SmartConfig.Networking
             SmartConfigContext context, Segment segment, byte[] broadcastBuffer, CancellationToken token)
         {
             var segmentInterval = context.GetOption<TimeSpan>(StandardOptionNames.SegmentInterval);
-            var endTime = TimeSpan.FromMilliseconds(Environment.TickCount) + segment.BroadcastingPeriod;
+
+            var endTime = segment.BroadcastingPeriod < TimeSpan.MaxValue ? // Overflow if BroadcastingPeriod is close to Timespan.MaxValue
+                TimeSpan.FromMilliseconds(Environment.TickCount) + segment.BroadcastingPeriod :
+                TimeSpan.MaxValue;
+
             while ((TimeSpan.FromMilliseconds(Environment.TickCount) <= endTime) && !token.IsCancellationRequested)
             {
-                await this.BroadcastSingleSegmentAsync(segment, broadcastBuffer, segmentInterval, token);
+                await BroadcastSingleSegmentAsync(segment, broadcastBuffer, segmentInterval, token);
             }
         }
 
@@ -105,7 +109,7 @@ namespace Sandwych.SmartConfig.Networking
             for (int i = 0; i < segment.BroadcastingMaxTimes; i++)
             {
                 token.ThrowIfCancellationRequested();
-                await this.BroadcastSingleSegmentAsync(segment, broadcastBuffer, segmentInterval, token);
+                await BroadcastSingleSegmentAsync(segment, broadcastBuffer, segmentInterval, token);
             }
         }
 
@@ -116,7 +120,7 @@ namespace Sandwych.SmartConfig.Networking
             foreach (var frame in segment.Frames)
             {
                 token.ThrowIfCancellationRequested();
-                await _broadcastingSocket.SendAsync(broadcastBuffer, frame, this._broadcastTarget);
+                await _broadcastingSocket.SendAsync(broadcastBuffer, frame);
                 if (segment.FrameInterval > TimeSpan.Zero)
                 {
                     await Task.Delay(segment.FrameInterval, token);
@@ -132,10 +136,7 @@ namespace Sandwych.SmartConfig.Networking
         {
             var maxLength = frames.Max();
             var bytes = new byte[maxLength];
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                bytes[i] = (byte)'1';
-            }
+            
             return bytes.ToArray();
         }
 
@@ -144,7 +145,7 @@ namespace Sandwych.SmartConfig.Networking
 
         public void Close()
         {
-            this.Dispose();
+            Dispose();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -161,7 +162,7 @@ namespace Sandwych.SmartConfig.Networking
 
         ~DatagramBroadcaster()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
         // This code added to correctly implement the disposable pattern.
@@ -171,7 +172,7 @@ namespace Sandwych.SmartConfig.Networking
             {
                 throw new InvalidOperationException("Already started.");
             }
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
         #endregion

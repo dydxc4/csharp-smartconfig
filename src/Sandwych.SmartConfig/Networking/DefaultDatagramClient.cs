@@ -13,6 +13,7 @@ namespace Sandwych.SmartConfig.Networking
     public class DefaultDatagramClient : IDatagramClient
     {
         private readonly UdpClient _udp;
+        private IPEndPoint? _targetEndPoint;
 
         public DefaultDatagramClient()
         {
@@ -25,9 +26,19 @@ namespace Sandwych.SmartConfig.Networking
             _udp.Client.Bind(localEndPoint);
         }
 
-        public async Task SendAsync(byte[] datagram, int bytes, IPEndPoint target)
+        public void SetDefaultTarget(IPEndPoint targetEndPoint)
         {
-            await _udp.SendAsync(datagram, bytes, target);
+            _targetEndPoint = targetEndPoint;
+        }
+
+        public async Task SendAsync(byte[] datagram, int bytes, IPEndPoint? target = null)
+        {
+            if (target is null && _targetEndPoint is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            await _udp.SendAsync(datagram, bytes, target ?? _targetEndPoint);
         }
 
         public async Task<DatagramReceiveResult> ReceiveAsync()
@@ -40,6 +51,5 @@ namespace Sandwych.SmartConfig.Networking
         {
             _udp.Dispose();
         }
-
     }
 }

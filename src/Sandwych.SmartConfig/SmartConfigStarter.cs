@@ -10,8 +10,8 @@ namespace Sandwych.SmartConfig
     {
         public static async Task StartAsync<TProvider>(SmartConfigArguments args,
                                                        CancellationToken cancelToken,
-                                                       Action<object, DeviceDiscoveredEventArgs> onDeviceDiscovered = null,
-                                                       Action<object, SmartConfigTimerEventArgs> onElapsed = null, 
+                                                       Action<object, DeviceDiscoveredEventArgs>? onDeviceDiscovered = null,
+                                                       Action<object, SmartConfigTimerEventArgs>? onElapsed = null, 
                                                        int timeoutSeconds = 100)
             where TProvider : class, ISmartConfigProvider, new()
         {
@@ -37,8 +37,8 @@ namespace Sandwych.SmartConfig
         }
 
         public static async Task StartAsync<TProvider>(SmartConfigArguments args,
-                                                       Action<object, DeviceDiscoveredEventArgs> onDeviceDiscovered = null,
-                                                       Action<object, SmartConfigTimerEventArgs> onElapsed = null, 
+                                                       Action<object, DeviceDiscoveredEventArgs>? onDeviceDiscovered = null,
+                                                       Action<object, SmartConfigTimerEventArgs>? onElapsed = null, 
                                                        int timeoutSeconds = 100)
             where TProvider : class, ISmartConfigProvider, new()
         {

@@ -8,10 +8,16 @@ namespace Sandwych.SmartConfig
 {
     public class SmartConfigArguments
     {
-        public string Password { get; set; } = string.Empty;
-        public string Ssid { get; set; }
-        public PhysicalAddress Bssid { get; set; }
-        public IPAddress LocalAddress { get; set; }
-        public bool? IsHiddenSsid { get; set; } = null;
+        public string? Password { get; set; }
+
+        public string? Ssid { get; set; }
+
+        public PhysicalAddress Bssid { get; set; } = PhysicalAddress.None;
+
+        public IPAddress LocalAddress { get; set; } = IPAddress.Any;
+        
+        public byte[]? AesKey { get; set; }
+
+        public byte[]? ReservedData { get; set; }
     }
 }

@@ -15,10 +15,10 @@ namespace Sandwych.SmartConfig.Protocol
             TimeSpan frameInterval,
             int broadcastingMaxTimes)
         {
-            this.Frames = frames;
-            this.FrameInterval = frameInterval;
-            this.BroadcastingPeriod = TimeSpan.MaxValue;
-            this.BroadcastingMaxTimes = broadcastingMaxTimes;
+            Frames = frames;
+            FrameInterval = frameInterval;
+            BroadcastingPeriod = TimeSpan.MaxValue;
+            BroadcastingMaxTimes = broadcastingMaxTimes;
         }
 
         public Segment(
@@ -26,10 +26,10 @@ namespace Sandwych.SmartConfig.Protocol
             TimeSpan frameInterval,
             TimeSpan broadcastingPeriod)
         {
-            this.Frames = frames;
-            this.FrameInterval = frameInterval;
-            this.BroadcastingPeriod = broadcastingPeriod;
-            this.BroadcastingMaxTimes = 0;
+            Frames = frames;
+            FrameInterval = frameInterval;
+            BroadcastingPeriod = broadcastingPeriod;
+            BroadcastingMaxTimes = 0;
         }
     }
 }
