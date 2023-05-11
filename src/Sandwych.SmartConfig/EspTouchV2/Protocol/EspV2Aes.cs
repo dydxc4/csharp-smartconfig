@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 
 namespace Sandwych.SmartConfig.EspTouchV2.Protocol
 {
