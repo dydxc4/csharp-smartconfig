@@ -3,6 +3,8 @@
 
 # CSharp.SmartConfig
 
+Hola mundo
+
 Csharp.SmartConfig is fork of Sandwych.SmartConfig, a pure C# implementation of various WiFi SmartConfig protocols that build from scratch.
 
 TD;LR: If you working on a Xamarin mobile app to deal with WiFi-capability IoT devices, you may need this library.
